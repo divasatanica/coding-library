@@ -1,0 +1,104 @@
+<html>
+
+<body>
+    <input type="text" id="input" />
+    <div id="show"></div>
+    <button id="btn">Increament</button>
+</body>
+<script>
+    function observe (obj) {
+        for (let key in obj) {
+            if (!hasOwn(obj, key)) {
+                continue;
+            }
+            if (typeof obj[key] === 'object') {
+                // defineReactive(obj, key, obj[key]);
+
+                observe(obj[key]);
+            } else {
+                defineReactive(obj, key, obj[key]);
+            } 
+        }
+    }
+    function defineReactive (target, key, value) {
+
+
+        // const dep = new Dep();
+        Object.defineProperty(target, key, {
+            get () {
+                return value;
+            },
+
+            set (newValue) {
+                
+                if (value == newValue || value !== value && newValue !== newValue) {
+                    return;
+                }
+                value = newValue;
+
+                // 实际vue是使用set访问器闭包中的Dep实例dep来通知watcher的
+                // 这里为了简化，我把dep设置成全局变量
+                dep.notify(newValue);
+            }
+        })
+    }
+    function hasOwn (obj, key) {
+        return Object.prototype.hasOwnProperty.call(obj, key);
+    }
+    class Dep {
+        constructor () {
+            this.subscribers = [];
+        }
+
+        notify (val) {
+            this.subscribers.forEach(fn => {
+                fn(val);
+            });
+        }
+
+        addSub (sub) {
+            this.subscribers.push(sub);
+        }
+    }
+</script>
+<script>
+    //实现input输入框和show 双向绑定
+
+    // init
+    let data = {
+        show: 'coma'
+    };
+    let dep = new Dep();
+    let input = document.getElementById('input');
+    dep.addSub(function (value) {
+        input.value = value;
+        // setTimeout(updateDOM, 0);
+        updateDOM();
+    });
+    observe(data);
+    updateDOM();
+
+    // compile
+    input.value = data.show;
+    input.addEventListener('input', e => {
+        let target = e.target;
+        data.show = target.value;
+    });
+    
+    function updateDOM () {
+        let div = document.getElementById('show');
+        div.innerText = data.show;
+    }
+
+    
+
+</script>
+<script>
+    let btn = document.getElementById("btn");
+    let count = 0;
+    btn.addEventListener("click", function () {
+        data.show = count ++;
+    });
+</script>
+
+</html>

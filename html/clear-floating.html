@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    html, 
+    body, 
+    div {
+      padding: 0;
+      margin: 0;
+    }
+    section {
+      margin: 5px 0;
+    }
+    div.parent {
+      background: #f00;
+    }
+    .parent::after {
+      content: "";
+      display: block;
+      clear: both;
+    }
+    .parent {
+      background: #00f;
+    }
+    .children {
+      height: 20px;
+      width: 100%;
+      background: #0f0;
+      float: right;
+      margin: 10px 0;
+    }
+  </style>
+  <style>
+    .parent-2 {
+      background: #e55;
+      overflow: hidden;
+    }
+    .children-2 {
+      float: right;
+      background: #0049a9;
+      height: 20px;
+      width: 100%;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <section>
+    <div class="parent">
+      <div class="children"></div>
+    </div>
+  </section>
+  <section>
+    <div class="parent-2">
+      <div class="children-2"></div>
+    </div>
+  </section>
+</body>
+</html>

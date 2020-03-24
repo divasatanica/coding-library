@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            height: 5000px;
+            overflow: auto;
+        }
+        #root {
+            background: #aaa;
+            height: 400px;
+            width: 100vw;
+            display: table-cell;
+            text-align: center;
+            vertical-align: middle;
+        }
+        #sticky {
+            position: sticky;
+            top: 0px;
+            background: #009a61;
+            height: 100px;
+        }
+        #blue {
+            background: #4d8dd9;
+            height: 100px;
+            width: 100px;
+            display: inline-block;
+            /* position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%); */
+        }
+        #red {
+            background: #e55;
+            height: 1000px;
+        }
+    </style>
+</head>
+<body>
+    <!-- <div id="sticky"></div> -->
+    <div id="root" style="">
+        <div id="blue"></div>
+    </div>
+    
+    <!-- <div id="red"></div> -->
+</body>
+</html>

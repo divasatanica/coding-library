@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    body{
+        display: grid;
+    }
+    #header{
+        background: red;
+        grid-row:1;
+        grid-column:1/5;
+    }
+        
+    #left{
+        grid-row:2;
+        grid-column:1/2;
+        background: orange;
+    }
+    #right{
+        grid-row:2;
+        grid-column:4/5;
+        background: cadetblue;
+    }
+    #middle{
+        grid-row:2;
+        grid-column:2/4;
+        background: rebeccapurple
+    }
+    #footer{
+        background: gold;
+        grid-row:3;
+        grid-column:1/5;
+    }
+  </style>
+</head>
+
+<body>
+    <div id="header">header</div>
+    <div id="left">left</div>
+    <div id="middle">middle</div>
+    <div id="right">right</div>     
+    <div id="footer">footer</footer></div>
+       
+</body>
+
+</html>

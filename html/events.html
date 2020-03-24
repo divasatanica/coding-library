@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app">
+        <p id="param">
+            <button id="btn">ddd</button>
+        </p>
+    </div>
+</body>
+<script>
+    let app = document.getElementById("app"),
+        p = document.getElementById("param"),
+        btn = document.getElementById("btn");
+    let btnList = [app, p, btn];
+
+    function fnCapture () {
+        console.log("capture", this);
+    }
+
+    function fnProp () {
+        console.log("propagation", this);
+    }
+    btnList.forEach(item => {
+        item.addEventListener("click", fnProp, false);
+    });
+    btnList.forEach(item => {
+        item.addEventListener("click", fnCapture, true);
+    });
+
+    
+    
+    // app.addEventListener('click', () => {
+    //     console.log("propagation");
+    // }, false);
+
+    // app.addEventListener("click", () => {
+    //     console.log("capture");
+    // }, true);
+</script>
+</html>

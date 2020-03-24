@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Little-Test</title>
+  <link rel="stylesheet" href="../css/reset.css">
+  <style>
+    .animation-container {
+      width: 50%;
+      height: 300px;
+      background: #ef9f9f;
+      overflow: hidden;
+      position: relative;
+    }
+    /* #animate {
+      margin-top: 50px;
+      height: 200px;
+      width: 400px;
+      background: #e55;
+    } */
+    #animate-end {
+      height: 300px;
+      width: 1px;
+      background: #eee;
+      position: absolute;
+      left: 1200px;
+      top: 43px;
+    }
+  </style>
+</head>
+<body>
+  <section style="position: relative;">
+    <h3>实现一个div滑动的动画，由快至慢5s结束（不准用css3）</h3>
+    <div class="animation-container" id="test-1"></div>
+    <button id="init">Init</button>
+    <button id="run">Run</button>
+    <button id="stop" onClick="animation.stop()">Stop</button>
+  </section>
+</body>
+<script src="../js/animate.js"></script>
+<script>
+  let initBtn = document.getElementById('init'),
+      runBtn = document.getElementById('run'),
+      animation;
+  initBtn.addEventListener('click', function () {
+    if (animation) {
+      return;
+    }
+    animation = new EleAnimation({
+      containerSel: '#test-1',
+      options: {
+        content: {
+          style: {
+            height: '200px',
+            width: '200px',
+            marginTop: '50px',
+            left: '0',
+            top: '0',
+            backgroundColor: '#e55'
+          }
+        },
+        duration: 5000,
+        infinite: false,
+        animateFunction: 'const-dec'
+      }
+    });
+  });
+  runBtn.addEventListener('click', function () {
+    animation && animation.run();
+  });
+</script>
+</html>

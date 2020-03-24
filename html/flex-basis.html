@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <link rel="stylesheet" href="../css/reset.css">
+  <style>
+    .parent {
+      display: flex;
+      width: 800px;
+      height: 200px;
+    }
+    /* .child-1 {
+      flex: 0 1 200px;
+      background: #ee9f9f;
+    } */
+    .parent div:first-child {
+      flex: 0 1 200px;
+      background: #ee9f9f;
+    }
+    /* .child-2 {
+      flex: 0 2 300px;
+      background: #efafaf;
+    } */
+    .parent div:nth-child(2) {
+      flex: 0 2 300px;
+      background: #efafaf;
+    }
+    .child-3 {
+      flex: 0 0 200px;
+      background: #e55;
+    }
+  </style>
+</head>
+<body>
+  <div class="parent">
+    <div class="child-1"></div>
+    <div class="child-2"></div>
+    <div class="child-3"></div>
+  </div>
+</body>
+</html>

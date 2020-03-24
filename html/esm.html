@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        
+    .setBorderAll{
+       position: relative;
+       height: 200px;
+       width: 200px;
+    }
+
+    .setBorderAll:after {
+        content:" ";
+        position:absolute;
+        top: 0;
+        left: 0;
+        width: 200%;
+        height: 200%;
+        transform: scale(0.5);
+        transform-origin: left top;
+        box-sizing: border-box;
+        border: 1px solid #000;
+        border-radius: 4px;
+    }
+
+    </style>
+</head>
+<script type="module">
+    import A from './mod.js';
+
+    setTimeout(() => {
+        console.log(A)
+    }, 3000);
+</script>
+<body>
+    <div class='setBorderAll'></div>
+</body>
+</html>
