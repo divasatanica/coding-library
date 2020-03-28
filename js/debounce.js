@@ -2,14 +2,13 @@ function debounce(callback, time) {
     let timer;
     
     return function(...args) {
-      if (timer) {
-          clearTimeout(timer)
-        timer = null //1
-      }
+        if (timer) {
+            clearTimeout(timer);
+        }
       
       timer = setTimeout(() => {
         callback.apply(this, args);
-        //   timer = null; //2
+        timer = null;
       }, time);
     }
       
