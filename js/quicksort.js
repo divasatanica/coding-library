@@ -4,7 +4,9 @@ function quickSort (arr, begin = 0, end = arr.length - 1) {
     }
     let left = begin,
         right = end,
-        pivot = begin;
+        pivot = Math.floor(begin + Math.random() * (end - begin));
+    swap(arr, begin, pivot);
+    pivot = begin;
     while (left < right) {
         while (left < right && arr[right] >= arr[pivot]) {
             right --;
@@ -30,7 +32,7 @@ function cmp (a, b) {
 }
 
 let date = new Date();
-let arr = Array.from({length: 10}).fill([4, 2, 1, 3, 6, 9, 10]).reduce((acc, curr) => acc.concat(curr), []);
+let arr = Array.from({length: 3}).fill([4, 2, 1, 3, 6, 9, 10]).reduce((acc, curr) => acc.concat(curr), []);
 console.log(arr.length);
 quickSort(arr);
 console.log(arr);
