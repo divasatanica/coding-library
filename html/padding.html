@@ -22,4 +22,16 @@
         <div id='son'></div>
     </div>
 </body>
+<script>
+    let offsetTop = 0;
+    const div = document.querySelector("#son");
+    const run = () => {
+        if (offsetTop > 1000) {
+            offsetTop = 0;
+        }
+        div.style.transform = `translate3d(0, ${offsetTop += 10}px, 0)`;
+        window.requestAnimationFrame(run);
+    };
+    run();
+</script>
 </html>
