@@ -49,34 +49,6 @@
 // console.assert(go()()('d') === 'goood', 'test-3');
 // console.assert(go()()()('d') === 'gooood', 'test-4');
 
-// function green () {
-//     console.log('green');
-// }
-
-// function red () {
-//     console.log('red');
-// }
-
-// function yellow () {
-//     console.log('yellow');
-// }
-
-// function light (cb, timer) {
-//     return new Promise(resolve => {
-//         cb();
-//         setTimeout(resolve, timer);
-//     });
-// }
-
-// function lightLoop () {
-//     let p = Promise.resolve();
-
-//     p.then(() => light(red, 3000)).then(() => light(green, 2000)).then(() => light(yellow, 1000)).then(lightLoop);
-// }
-
-// lightLoop();
-
-// lightLoop().then(lightLoop);
 
 const timeout = (ms, id) => new Promise((resolve, reject) => {
     setTimeout(() => {
