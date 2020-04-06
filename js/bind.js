@@ -1,8 +1,8 @@
 Function.prototype.mybind = function (context, ...outerArgs) {
-    let self = this;
-    let _context = context || window;
+    const self = this;
+    const _context = context || window;
 
-    return function wrapper (...innerArgs) {
+    const wrapper = function wrapper(...innerArgs) {
         let args = [...outerArgs, ...innerArgs];
         
         if (this instanceof wrapper) {
@@ -10,12 +10,19 @@ Function.prototype.mybind = function (context, ...outerArgs) {
                 result = self.apply(obj, args);
             
             // obj.__proto__ = self.prototype;
-            Object.setPrototypeOf(obj, self.prototype) 
+            Object.setPrototypeOf(obj, self.prototype);
+            obj.constructor = wrapper;
             return typeof result === 'object' ? result : obj;
         }
 
         return self.apply(_context, args);
     }
+
+    const Noop = function() {};
+    Noop.prototype = this.prototype;
+    wrapper.prototype = new Noop();
+
+    return wrapper;
 }
 
 function Animal (name) {
@@ -32,9 +39,11 @@ let cat = new Cat();
 
 cat.say();
 
-function add(a, b) {
-    return a + b;
-}
-let addOne = add.mybind({}, 1);
+console.log(cat.constructor === Cat, Cat.prototype.__proto__.constructor === Animal);
 
-console.log(addOne(3));
+// function add(a, b) {
+//     return a + b;
+// }
+// let addOne = add.mybind({}, 1);
+
+// console.log(addOne(3));
