@@ -39,6 +39,10 @@ var mergeTwoLists = function(l1, l2) {
     return result.next;
 };
 
+/**
+ * 写法1，这种方法消耗的内存较多，因为递归时复制了 logK 个子数组
+ * @param {*} lists 
+ */
 var mergeKLists = function(lists) {
     if (lists.length < 1) {
         return null;
@@ -53,6 +57,33 @@ var mergeKLists = function(lists) {
 
     return result;
 };
+
+/**
+ * 基于解法1，将复制子数组改为操作索引，始终引用原始的链表数组
+ * @param {*} lists 
+ */
+var mergeKLists = function(lists) {
+    if (lists.length < 1) {
+        return null;
+    }
+
+    if (lists.length <= 2) {
+        return mergeTwoLists(lists[0], lists[1] || null);
+    }
+
+    function _merge(lists, start, end) {
+        if (end - start < 0) {
+            return null;
+        }
+        if (end === start) {
+            return lists[start];
+        }
+        const mid = Math.floor(start + (end - start) / 2);
+        return mergeTwoLists(_merge(lists, start, mid), _merge(lists, mid + 1, end));
+    }
+
+    return _merge(lists, 0, lists.length - 1);
+}
 
 let result = mergeKLists([l1.getHead(), l2.getHead(), l3.getHead(), null]);
 let _ = [];
