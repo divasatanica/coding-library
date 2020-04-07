@@ -22,13 +22,11 @@ function cloneLoop(x) {
         if (typeof key !== 'undefined') {
             parent[key] = {};
             res = parent[key];
-            // res = parent[key] = {};
         }
 
         for (let k in data) {
-            if (data.hasOwnProperty(k)) {
+            if (Object.prototype.hasOwnProperty.call(data, k)) {
                 if (typeof data[k] === 'object') {
-
                     if (map.get(data[k])) {
                         res[k] = data[k];
                     } else {
@@ -67,8 +65,10 @@ const a = {
         }
     },
     msg: 'success',
+    foo: function() {}
 };
 a.loop = a;
 const b = cloneLoop(a);
 // a.loop.a = 3;
 console.log(b.loop);
+console.log(a.foo === b.foo);
