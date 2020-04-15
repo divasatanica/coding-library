@@ -14,22 +14,20 @@ class LazyManReduxStyle {
   
     sleepFirst(time) {
         time = time * 1000;
-        this.sleepFirstMiddlewares.push(next => () => {
-            setTimeout(() => {
-                console.log(`Wake up after ${time} ms`);
-                next();
-            }, time);
+        this.sleepFirstMiddlewares.push(next => async () => {
+            await sleep(time);
+            console.log(`Wake up after sleepFirst ${time} ms`);
+            next && next();
         });
         return this;
     }
   
     sleep(time) {
         time = time * 1000;
-        this.middlewares.push(next => () => {
-            setTimeout(() => {
-                console.log(`Wake up after ${time} ms`);
-                next();
-            }, time);
+        this.middlewares.push(next => async () => {
+            await sleep(time);
+            console.log(`Wake up after sleep ${time} ms`);
+            next && next();
         });
         return this;
     }
@@ -37,7 +35,7 @@ class LazyManReduxStyle {
     eat(food) {
         this.middlewares.push(next => () => {
             console.log(`Eat ${food}~`);
-            next();
+            next && next();
         });
         return this;
     }
@@ -45,7 +43,7 @@ class LazyManReduxStyle {
     _say() {
         return next => () => {
             console.log(`Hi, this is ${this.name}`);
-            next();
+            next && next();
         };
     }
   
@@ -54,7 +52,8 @@ class LazyManReduxStyle {
     }
   
     _applyMiddlewares(middlewares) {
-        return compose(middlewares.reverse())(() => {});
+        const [lastActionGenerator, ...restActionGenerators] = middlewares.reverse(); 
+        return compose(restActionGenerators)(lastActionGenerator());
     }
 }
   
@@ -62,4 +61,10 @@ function compose(funcs) {
     return arg => funcs.reduce((acc, curr) => curr(acc), arg);
 }
 
-new LazyMan('Hank').sleepFirst(3).eat('lunch').sleep(3).eat('dinner').sleepFirst(2);
+function sleep(time) {
+    return new Promise(resolve => {
+        setTimeout(resolve, time);
+    });
+}
+
+LazyMan('Hank').sleepFirst(3).eat('lunch').sleep(3).eat('dinner').sleepFirst(2);
