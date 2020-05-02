@@ -15,9 +15,11 @@ class LazyManReduxStyle {
     sleepFirst(time) {
         time = time * 1000;
         this.sleepFirstMiddlewares.push(next => async () => {
+            // console.log('sleep...');
             await sleep(time);
             console.log(`Wake up after sleepFirst ${time} ms`);
-            next && next();
+            next && await next();
+            console.log('after sleepFirst');
         });
         return this;
     }
@@ -27,23 +29,24 @@ class LazyManReduxStyle {
         this.middlewares.push(next => async () => {
             await sleep(time);
             console.log(`Wake up after sleep ${time} ms`);
-            next && next();
+            next && await next();
+            console.log('after sleep');
         });
         return this;
     }
   
     eat(food) {
-        this.middlewares.push(next => () => {
+        this.middlewares.push(next => async () => {
             console.log(`Eat ${food}~`);
-            next && next();
+            next && await next();
         });
         return this;
     }
   
     _say() {
-        return next => () => {
+        return next => async () => {
             console.log(`Hi, this is ${this.name}`);
-            next && next();
+            next && await next();
         };
     }
   
