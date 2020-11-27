@@ -31,11 +31,13 @@ function cmp (a, b) {
     return a < b ? -1 : (a === b ? 0 : 1);
 }
 
-let date = new Date();
-let arr = Array.from({length: 3}).fill([4, 2, 1, 3, 6, 9, 10]).reduce((acc, curr) => acc.concat(curr), []);
-console.log(arr.length);
-quickSort(arr);
-console.log(arr);
-
+// let date = new Date();
+// let arr = Array.from({length: 3}).fill([4, 2, 1, 3, 6, 9, 10]).reduce((acc, curr) => acc.concat(curr), []);
+// console.log(arr.length);
+// quickSort(arr);
 // console.log(arr);
-console.log("Time used:", new Date - date);
+
+// // console.log(arr);
+// console.log("Time used:", new Date - date);
+
+module.exports = quickSort
