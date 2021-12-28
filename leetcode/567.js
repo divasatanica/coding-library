@@ -42,4 +42,87 @@ var checkInclusion = function(s1, s2) {
 
 };
 
-console.log(checkInclusion("ab", "eidboaoo"))
+/**
+ * @param {string} s1
+ * @param {string} s2
+ * @return {boolean}
+ */
+ var checkInclusion2 = function(s1, s2) {
+    const s1Map = {};
+    let gTotal = 0;
+    let gCur = 0;
+    ([...s1]).forEach((char, index) => {
+      let record = s1Map[char];
+      if (record) {
+        record += 1;
+        gTotal += 1;
+      } else {
+        s1Map[char] = 1;
+        gTotal += 1;
+      }
+    });
+  
+    let l = 0;
+    let r = 0;
+  
+    while (r < s2.length) {
+      const char = s2[r];
+      let hasOutOfInclusion = false;
+      let record = s1Map[char];
+
+      
+  
+      if (record != null) {
+        if (record <= 0) {
+          hasOutOfInclusion = true;
+        }
+      } else {
+        hasOutOfInclusion = true;
+      }
+
+    
+      if (hasOutOfInclusion) {
+        let innerRecord = s1Map[s2[r]];
+        console.log(s2[l], s1Map[s2[l]], innerRecord)
+        if (innerRecord == null) {
+          gCur = 0;
+          l ++;
+          r ++;
+        } else {
+
+          while (l <= r && s1Map[s2[l]] < 0) {
+
+            console.log('Recovering', s1Map[s2[l]], s2[l])
+            s1Map[s2[l]] ++;
+            l ++;
+            gCur --;
+          }
+          r ++;
+        }
+      } else {
+        // record -= 1;
+        // s1Map[s2[r]] -= 1;
+        // gCur += 1;
+        // r ++;
+      }
+
+      console.log('char:', char, 'r:', r, 'gCur:', gCur, 'gTotal:', gTotal, 'record:', record, 'hasOutOfInclusion:', hasOutOfInclusion);
+  
+      if (gCur >= gTotal) {
+        return true
+      }
+    }
+  
+    if (gCur >= gTotal) {
+      return true
+    }
+  
+    return false;
+  };
+
+console.log(checkInclusion2("abcdcc", "eidbadcccooo"))
+// console.log(checkInclusion2("ab", "eidbaooo"))
+// console.log(checkInclusion2("abcdcc", "eidboaoo"))
+// console.log(checkInclusion2("ab", "eidboaoo"))
+// console.log(checkInclusion2("ab", "ab"))
+// console.log(checkInclusion2("hello", "ooolleoooleh"))
