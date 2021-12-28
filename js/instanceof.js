@@ -2,10 +2,11 @@ function newInstanceof (a, b) {
     let proto = b.prototype;
 
     while (a) {
-        if (a.__proto__ === proto) {
+        const __proto__ = Object.getPrototypeOf(a)
+        if (__proto__ === proto) {
             return true;
         }
-        a = a.__proto__;
+        a = __proto__;
     }
     return false;
 }
