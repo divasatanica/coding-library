@@ -11,13 +11,13 @@ const min = 0
 const max = 2147483647
 
 /**
- * 单线程的话,内存上线是 16G
- * 8线程的话, 平均每个线程的内存上限是 2G
- * 假设为 MEMORY_MAX,单位为 Byte
+ * 假设内存上限为 MEMORY_MAX,单位为 Byte
+ * 我们希望每个分块的数据量都在内存上限之内
+ * 这样就可以直接对分块进行排序
  */
 
 const MEMORY_MAX = 'memory_max'
-// 均分情况下的桶个数 = 数字个数 / (单条线程的内存上限 / 2 Byte)
+// 均分情况下的桶个数 = 数字个数 / (单条线程的内存上限 / 4 Byte)
 const bucketSize = MEMORY_MAX / PER_NUMBER_SIZE
 let k = Math.ceil(totalNum / bucketSize)
 
@@ -69,7 +69,7 @@ readableStream.on('end', () => {
   // 把数据溢出的桶索引找出来
   const counts = Object.keys(bucketCount).filter(key => bucketSize[count] > bucketSize);
 
-  // 用 Promise 链控制异步流程
+  // 使用 reduce API 控制 Promise 继发式运行
   const stepArrayPromise = counts.reduce((acc, curr) => {
     const key = curr;
 
@@ -85,6 +85,8 @@ readableStream.on('end', () => {
   const output = fs.createWriteStream('/path/to/name-output')
   let i = 0;
   let outputReadStream = fs.createReadStream(`/path/to/name-${i}`)
+
+  // 多出一个元素用来最后结束调用,关闭 output 输出流
   let kArray = Array.from({ length: k + 1 }).fill(0)
   
   kArray.reduce((acc, curr, currentIndex) => {
@@ -162,7 +164,6 @@ function getSortedAndWriteOutput (readIndex, ouput) {
       let data
 
       while (data = outputReadStream.read()) {
-        // xxx 省略重复的读取数据的过程,跟上面一样,读一个 2 byte 数字,读一个空格,交替读取
         if (data === ' ') {
           size = PER_NUMBER_SIZE
         } else {
@@ -181,13 +182,13 @@ function getSortedAndWriteOutput (readIndex, ouput) {
 
 /**
  * 简单来说就是把数据量超过 bucketSize 的文件块,
- * 读取出来,切分成 n 个小的文件块,
- * 然后读取这 n 个文件块,排序后
+ * 读取出来,切分成 n 个小的文件块并排序
+ * 然后读取这 n 个文件块,重新合并回源文件
  * @param {*} key 
  * @returns 
  */
 function splitOversizeAndSort (key) {
-  return new Promise(resolve => {
+  return new Promise(resolveRoot => {
     const counts = bucketCount[key];
     const shouldSplit = Math.ceil(counts / bucketSize);
     let streams = [];
@@ -259,21 +260,60 @@ function splitOversizeAndSort (key) {
       fs.rmSync(`path/to/name-${key}`)
       const writable = fs.createWriteStream(`path/to/name-${key}`)
       let tmp = [];
-      streams.forEach((stream, _index) => {
-        stream.on('readable', () => {
-          // read data
-          let number = stream.read(2)
-          stream.pause()
+      Promise.all(streams.map((stream, _index) => {
+        return new Promise(_resolve => {
+          stream.on('readable', () => {
+            _resolve();
+          })
+        })
+      })).then(() => {
+        // 给所有的可读流加上 readable 监听器之后,开始手动读取数据
+        let shouldRead = 0;
+        let finishCount = 0;
+        let finishMap = {};
 
-          // 读完一个数字后暂停流动
-          // tmp 被填满之后,代表所有分块文件流已经被读过一次
-          tmp[_index] = number
+        // 用 shouldRead 控制当前需要读取数据的流索引
+        // 如果 tmp 没有满,就轮询式地读取这几个流
+        while (true) {
+          // 已完成的流提前 continue
+          if (finishMap[shouldRead]) {
+            shouldRead = (shouldRead >= shouldSplit) ? 0 : shouldRead + 1;
+            continue;
+          }
+          // 读一个数字读一个空格
+          // 如果读到的数字是最后一个数字
+          // 那么 nextChunk 就是 null
+          const chunk = streams[shouldRead].read(PER_NUMBER_SIZE);
+          const nextChunk = streams.read(1);
+          
+
+          // 若读取到 null
+          if (nextChunk == null) {
+            finishCount ++;
+            finishMap[shouldRead] = true;
+            streams[shouldRead].close();
+            fs.rm(`path/to/name-${key}-tmp-${_index}`);
+
+            // 所有流都完成读取,退出 while 循环
+            if (finishCount === shouldSplit) {
+              writable.close();
+              resolveRoot();
+              break;
+            }
+
+            shouldRead = (shouldRead >= shouldSplit) ? 0 : shouldRead + 1;
+            continue;
+          }
+
+          const number = Number(chunk);
+          tmp[shouldRead] = number; 
           let minIndex
           if (tmp.length === shouldSplit) {
             let min = Number.MAX_VALUE;
             let minIndex = -1;
             // 在这里取出最小的数字写回源文件
-            // 并将其继续流动
+            // 将 minIndex 赋值给 shouldRead
+            // 并在下一次 while 循环中继续读取 minIndex 索引指向的流的数据
             tmp.forEach((n, nIndex) => {
               if (n < min) {
                 min = n;
@@ -281,21 +321,13 @@ function splitOversizeAndSort (key) {
                 writable.write(n);
                 writable.write(' ');
               }
-              streams[minIndex].resume();
-            })
-          }
-        })
+            });
 
-        stream.on('end', () => {
-          // 索引为 index 的流读完之后,关闭这个流
-          status[_index] = true
-          streams[_index].close()
-          fs.rmSync(`path/to/name-${key}-tmp-${_index}`)
-          if (status.every(s => s === true)) {
-            resolve()
-            streams = []
+            shouldRead = minIndex;
+          } else {
+            shouldRead = (shouldRead >= shouldSplit) ? 0 : shouldRead + 1;
           }
-        })
+        }
       })
     })
   })
