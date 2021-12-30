@@ -83,8 +83,6 @@ readableStream.on('end', () => {
   }, Promise.resolve())
 
   const output = fs.createWriteStream('/path/to/name-output')
-  let i = 0;
-  let outputReadStream = fs.createReadStream(`/path/to/name-${i}`)
 
   // 多出一个元素用来最后结束调用,关闭 output 输出流
   let kArray = Array.from({ length: k + 1 }).fill(0)
@@ -116,7 +114,7 @@ readableStream.on('end', () => {
 function readFileBlockAndSort (readIndex) {
 
   return new Promise(resolve => {
-    const outputReadStream = fs.createReadStream(`/path/to/name-${i}`)
+    const outputReadStream = fs.createReadStream(`/path/to/name-${readIndex}`)
 
     let nums = [];
 
