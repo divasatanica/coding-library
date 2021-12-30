@@ -156,7 +156,7 @@ function readFileBlockAndSort (readIndex) {
 
 function getSortedAndWriteOutput (readIndex, ouput) {
   return new Promise(resolve_ => {
-    let outputReadStream = fs.createReadStream(`/path/to/name-${i}`)
+    let outputReadStream = fs.createReadStream(`/path/to/name-${readIndex}`)
 
     outputReadStream.on('readable', () => {
       let data
@@ -174,7 +174,6 @@ function getSortedAndWriteOutput (readIndex, ouput) {
     })
 
     outputReadStream.on('end', () => {
-      i ++;
       resolve()
     })
   })
