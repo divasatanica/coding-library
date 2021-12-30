@@ -85,7 +85,7 @@ readableStream.on('end', () => {
   const output = fs.createWriteStream('/path/to/name-output')
 
   // 多出一个元素用来最后结束调用,关闭 output 输出流
-  let kArray = Array.from({ length: k + 1 }).fill(0)
+  let kArray = Array.from({ length: k + 1 }).fill(true)
   
   kArray.reduce((acc, curr, currentIndex) => {
     if (currentIndex === k) {
@@ -275,7 +275,7 @@ function splitOversizeAndSort (key) {
         while (true) {
           // 已完成的流提前 continue
           if (finishMap[shouldRead]) {
-            shouldRead = (shouldRead >= shouldSplit) ? 0 : shouldRead + 1;
+            shouldRead = (shouldRead >= shouldSplit - 1) ? 0 : shouldRead + 1;
             continue;
           }
           // 读一个数字读一个空格
@@ -299,7 +299,7 @@ function splitOversizeAndSort (key) {
               break;
             }
 
-            shouldRead = (shouldRead >= shouldSplit) ? 0 : shouldRead + 1;
+            shouldRead = (shouldRead >= shouldSplit - 1) ? 0 : shouldRead + 1;
             continue;
           }
 
@@ -323,7 +323,7 @@ function splitOversizeAndSort (key) {
 
             shouldRead = minIndex;
           } else {
-            shouldRead = (shouldRead >= shouldSplit) ? 0 : shouldRead + 1;
+            shouldRead = (shouldRead >= shouldSplit - 1) ? 0 : shouldRead + 1;
           }
         }
       })
