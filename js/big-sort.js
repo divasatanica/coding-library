@@ -131,7 +131,7 @@ function readFileBlockAndSort (readIndex) {
           size = 1
           const number = Number(data)
 
-          output.write(Buffer.from())
+          output.write(number)
         }
       }
     });
