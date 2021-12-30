@@ -122,8 +122,8 @@ function readFileBlockAndSort (readIndex) {
 
     outputReadStream.on('readable', () => {
       let data
-
-      while (data = outputReadStream.read()) {
+      let size = PER_NUMBER_SIZE
+      while (data = outputReadStream.read(size)) {
         // xxx 省略重复的读取数据的过程,跟上面一样,读一个 2 byte 数字,读一个空格,交替读取
         if (data === ' ') {
           size = PER_NUMBER_SIZE
@@ -162,8 +162,8 @@ function getSortedAndWriteOutput (readIndex, ouput) {
 
     outputReadStream.on('readable', () => {
       let data
-
-      while (data = outputReadStream.read()) {
+      let size = PER_NUMBER_SIZE
+      while (data = outputReadStream.read(size)) {
         if (data === ' ') {
           size = PER_NUMBER_SIZE
         } else {
