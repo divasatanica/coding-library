@@ -46,26 +46,28 @@ function addOneByOne(A, B) {
   return res;
 }
 
-const graph = [[1,2,3],[5,6,7],[9,10,11],[12,13,14]]
-const angle = 3 * Math.PI / 2
+function getTransferMatrix ({ tx, ty, angle }) {
+  const ROTATION_ANGLE = angle
+  // 使用齐次坐标系下的仿射变换矩阵
+  // 题中的顺时针 90° 旋转图片相当于在坐标原点逆时针旋转图片 270° 后往上平移 colG - 1 个单位长度
+  // colG - 1 是因为仿射变换处理的是坐标, 原图片矩阵中有 colG 列,即 colG 个元素,那么对应就有 colG - 1 个单位长度
+  // 使用 Math.round 取整保证不出现浮点数精度问题, 非本题核心
+  return [
+    [Math.round(Math.cos(ROTATION_ANGLE)), -Math.sin(ROTATION_ANGLE), tx],
+    [Math.sin(ROTATION_ANGLE), Math.round(Math.cos(ROTATION_ANGLE)), ty],
+    [0, 0, 1]
+  ];
+}
+
 
 /**
  * 使用仿射变换来旋转图像,可适用于任意维度的图像
  * @param {Array{Array}} graph 
  */
 function rotate (graph) {
-  printMatrix(graph)
   const rowG = graph.length;
   const colG = graph[0].length;
-  // 使用齐次坐标系下的仿射变换矩阵
-  // 题中的顺时针 90° 旋转图片相当于在坐标原点逆时针旋转图片 270° 后往上平移 colG - 1 个单位长度
-  // colG - 1 是因为仿射变换处理的是坐标, 原图片矩阵中有 colG 列,即 colG 个元素,那么对应就有 colG - 1 个单位长度
-  // 使用 Math.round 取整保证不出现浮点数精度问题, 非本题核心
-  const transferMatrix = [
-    [Math.round(Math.cos(angle)), -Math.sin(angle), 0],
-    [Math.sin(angle), Math.round(Math.cos(angle)), colG - 1],
-    [0, 0, 1]
-  ];
+  const transferMatrix = getTransferMatrix({ tx: 0, ty: colG - 1, angle: 3 * Math.PI / 2 })
   const res = Array.from({ length: colG }).fill(1).map(() => Array.from({ length: rowG }));
   for (let i = 0; i < rowG; i ++) {
     for (let j = 0; j < colG; j ++) {
@@ -81,7 +83,7 @@ function rotate (graph) {
       const targetX = pointRotated[0][0];
       const targetY = pointRotated[1][0];
 
-      console.log(`Transfered: Point(${j}, ${i}) -> Point(${targetX}, ${targetY})`);
+      // console.log(`Transfered: Point(${j}, ${i}) -> Point(${targetX}, ${targetY})`);
 
       res[colG - 1 - targetY][targetX] = graph[i][j];
     }
@@ -94,35 +96,15 @@ function rotate (graph) {
     }
   }
 
+  // 处理旋转后多出来的行
   while (graph.length > colG) {
     graph.pop();
   }
 }
 
-rotate(graph);
+const graph = [[1,2,3,4],[5,6,7,8],[9,10,11,15],[12,13,14,16]]
+console.log('Before rotation:\n')
 printMatrix(graph);
-
-
-// const A = [
-//   [1, 2, 3],
-//   [1, 1, 1]
-// ]
-
-// const B = [
-//   [1],
-//   [2],
-//   [3]
-// ]
-
-// matrixMul(A, B)
-
-
-
-
-/**
- * 
- * 
- * 1 2 3  x 1 
- * 1 1 1    2 
- *          3
- */
+rotate(graph);
+console.log('After rotation:\n')
+printMatrix(graph);
