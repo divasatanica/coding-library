@@ -46,11 +46,14 @@ function addOneByOne(A, B) {
   return res;
 }
 
+/**
+ * 根据 x/y 轴平移量和旋转角度获得一个齐次坐标系的仿射变换矩阵
+ * @param {{ tx, ty, angle}} param0 
+ * @returns 
+ */
 function getTransferMatrix ({ tx, ty, angle }) {
   const ROTATION_ANGLE = angle
   // 使用齐次坐标系下的仿射变换矩阵
-  // 题中的顺时针 90° 旋转图片相当于在坐标原点逆时针旋转图片 270° 后往上平移 colG - 1 个单位长度
-  // colG - 1 是因为仿射变换处理的是坐标, 原图片矩阵中有 colG 列,即 colG 个元素,那么对应就有 colG - 1 个单位长度
   // 使用 Math.round 取整保证不出现浮点数精度问题, 非本题核心
   return [
     [Math.round(Math.cos(ROTATION_ANGLE)), -Math.sin(ROTATION_ANGLE), tx],
@@ -67,6 +70,8 @@ function getTransferMatrix ({ tx, ty, angle }) {
 function rotate (graph) {
   const rowG = graph.length;
   const colG = graph[0].length;
+  // 题中的顺时针 90° 旋转图片等价于在坐标原点逆时针旋转图片 270° 后往上平移 colG - 1 个单位长度
+  // colG - 1 是因为仿射变换处理的是坐标, 原图片矩阵中有 colG 列,即 colG 个元素,那么对应就有 colG - 1 个单位长度
   const transferMatrix = getTransferMatrix({ tx: 0, ty: colG - 1, angle: 3 * Math.PI / 2 })
   const res = Array.from({ length: colG }).fill(1).map(() => Array.from({ length: rowG }));
   for (let i = 0; i < rowG; i ++) {
@@ -75,7 +80,7 @@ function rotate (graph) {
       // 注意这里需要根据坐标系中坐标与二维数组表示的矩阵的索引之间的关系来转换
       const point = [
         [j],
-        [rowG - i - 1],
+        [rowG - 1 - i],
         [1]
       ];
       // 变换矩阵右乘点坐标得到旋转+平移变换之后的点坐标 
@@ -102,7 +107,7 @@ function rotate (graph) {
   }
 }
 
-const graph = [[1,2,3,4],[5,6,7,8],[9,10,11,15],[12,13,14,16]]
+const graph = [[1,2,3,4,6,10],[5,6,7,8,20,22],[9,10,11,15,35,65],[12,13,14,16,43,23]]
 console.log('Before rotation:\n')
 printMatrix(graph);
 rotate(graph);
