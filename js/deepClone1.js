@@ -4,8 +4,7 @@ function deepClone (obj) {
   }
   const parentMap = new Map();
   let id = 0;
-  const getQueueFrame = (obj, key, parent) => {
-    const parentKey = parent && parent.key || 0
+  const getQueueFrame = (obj, key = '', parentKey = 0) => {
     return {
       path: key,
       value: obj,
@@ -14,7 +13,7 @@ function deepClone (obj) {
       type: getType(obj)
     };
   };
-  const queue = [getQueueFrame(obj, '')];
+  const queue = [getQueueFrame(obj)];
   let res = Array.isArray(obj) ? [] : {};
   
 
@@ -33,7 +32,7 @@ function deepClone (obj) {
 
         value.forEach((item, index, arr) => {
           queue.push(
-            getQueueFrame(item, index, frame)
+            getQueueFrame(item, index, frame.key)
           );
         });
 
@@ -52,7 +51,7 @@ function deepClone (obj) {
 
         keys.forEach(key => {
           queue.push(
-            getQueueFrame(value[key], key, frame)
+            getQueueFrame(value[key], key, frame.key)
           );
         });
         if (path !== '') {
@@ -115,4 +114,5 @@ console.time('target1')
 for (let i = 0; i < 10000; i ++) {
   deepClone(target1)
 }
+console.log(result1);
 console.timeEnd('target1')
