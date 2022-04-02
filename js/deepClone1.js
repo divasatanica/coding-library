@@ -1,44 +1,64 @@
+let gDebug = false
+
 function deepClone (obj) {
   if (obj == null || typeof obj !== 'object') {
     return obj;
   }
+  const debugMap = gDebug ? new Map() : null;
   const parentMap = new Map();
+  // Reference typed value will be added into this map after accessed
+  const circleMap = new WeakMap();
   let id = 0;
   const getQueueFrame = (obj, key = '', parentKey = 0) => {
-    return {
+    const value = {
       path: key,
       value: obj,
       key: id ++,
       parentKey,
       type: getType(obj)
-    };
+    }
+    gDebug && debugMap.set(value.key, value);
+    return value;
   };
+  const setPropToTarget = function setPropToTarget (parentKey, path, target, shouldInit) {
+    // Omit the frame if its parentKey can not be found in parentMap
+    // It only happens in circular data's queue frame
+    if (path !== '' && parentMap.has(parentKey)) {
+      Reflect.set(parentMap.get(parentKey), path, shouldInit ? target : parentMap.get(parentKey));
+    }
+  }
+  const setValueVisited = function setValueVisited (type, key, value) {
+    if (
+      !circleMap.has(value) &&
+      type !== 'function' &&
+      type !== 'primitive'
+    ) {
+      circleMap.set(value, key)
+    }
+  }
   const queue = [getQueueFrame(obj)];
-  let res = Array.isArray(obj) ? [] : {};
-  
 
   while (queue.length > 0) {
     const frame = queue.shift();
-    const { type, key } = frame;
-    let shouldInit = !parentMap.has(key);
+    const { type, key, value, path, parentKey } = frame;
+    // Value without existance in parentMap and hasn't been visited before should be initialized
+    const shouldInit = !parentMap.has(key) && !circleMap.has(value);
     switch (type) {
       case 'array': {
         const target = [];
         if (shouldInit) {
           parentMap.set(key, target);
         }
-        const { value, path, parentKey } = frame;
-
-
         value.forEach((item, index, arr) => {
+          if (circleMap.has(item)) {
+            return;
+          }
           queue.push(
             getQueueFrame(item, index, frame.key)
           );
         });
 
-        if (path !== '') {
-          Reflect.set(parentMap.get(parentKey), path, target);
-        }
+        setPropToTarget(parentKey, path, target, shouldInit);
         break;
       }
       case 'object': {
@@ -46,30 +66,34 @@ function deepClone (obj) {
         if (shouldInit) {
           parentMap.set(key, target);
         }
-        const { path, value, parentKey } = frame;
         const keys = Object.keys(value);
 
         keys.forEach(key => {
+          const obj = value[key];
+          if (circleMap.has(obj)) {
+            return;
+          }
           queue.push(
-            getQueueFrame(value[key], key, frame.key)
+            getQueueFrame(obj, key, frame.key)
           );
         });
-        if (path !== '') {
-          Reflect.set(parentMap.get(parentKey), path, target);
-        }
+
+        setPropToTarget(parentKey, path, target, shouldInit);
         break;
       }
-      // Primitive value and Function will be copied to the new object. 
+      // Primitive value will be copied
+      // Function's pointer will be kept in the result 
       case 'function':
       case 'primitive': {
-        const { parentKey, path, value } = frame;
-        Reflect.set(parentMap.get(parentKey), path, value);
+        setPropToTarget(parentKey, path, value, true);
         break;
       }
       default: {
-        throw new Error('Unknown typeof value')
+        throw new Error('Unknown typeof value');
       }
     }
+
+    setValueVisited(type, key, value);
   }
   const result = parentMap.get(0)
   parentMap.clear();
@@ -85,6 +109,9 @@ function getType (value) {
   if (typeof value === 'object') {
     return 'object';
   }
+  if (typeof value === 'function') {
+    return 'function';
+  }
 
   return 'primitive';
 }
@@ -99,14 +126,21 @@ const target = {
   tag: Symbol('target'),
   say: function foo () {}
 };
-const target1 = [
-  target,
-  function bar() {}
-]
-// console.time('target');
+let target1;
+target1 = {
+  name: 'coma',
+  friends: [1, 2, [1,2,3], { name: 'll' }],
+}
+
+target1._test_ = target1
+console.time('target');
 const result = deepClone(target);
-// console.timeEnd('target')
+console.timeEnd('target')
 const result1 = deepClone(target1);
+console.log(result1._test_ === result1);
+
+console.log(result1.friends[2] === target1.friends[2])
+
 // console.log(result, target.say === result.say);
 // console.log(result1, result1[0].info === target.info);
 
@@ -114,5 +148,13 @@ console.time('target1')
 for (let i = 0; i < 10000; i ++) {
   deepClone(target1)
 }
-console.log(result1);
 console.timeEnd('target1')
+
+const target2 = [null, 2, 3, { name: 'll' }, null]
+target2[0] = target2
+
+const result2 = deepClone(target2)
+
+console.log(result2, result2 === result2[0], target2[3] === result2[3])
+
+console.log(deepClone(null))
