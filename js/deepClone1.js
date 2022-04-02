@@ -66,7 +66,10 @@ function deepClone (obj) {
         if (shouldInit) {
           parentMap.set(key, target);
         }
-        const keys = Object.keys(value);
+        // Call Object.getOwnPropertySymbols to get symbols which are used as key
+        // const keys = [...Object.keys(value), ...Object.getOwnPropertySymbols(value)];
+        // Call Reflect.ownKeys to get keys of all types.
+        const keys = Reflect.ownKeys(value);
 
         keys.forEach(key => {
           const obj = value[key];
@@ -116,45 +119,45 @@ function getType (value) {
   return 'primitive';
 }
 
-const target = {
-  name: 'coma',
-  age: 25,
-  info: {
-    address: '123123'
-  },
-  friends: [1, 2, [1,2,3], { name: 'll' }],
-  tag: Symbol('target'),
-  say: function foo () {}
-};
-let target1;
-target1 = {
-  name: 'coma',
-  friends: [1, 2, [1,2,3], { name: 'll' }],
-}
+// const target = {
+//   name: 'coma',
+//   age: 25,
+//   info: {
+//     address: '123123'
+//   },
+//   friends: [1, 2, [1,2,3], { name: 'll' }],
+//   tag: Symbol('target'),
+//   say: function foo () {}
+// };
+// let target1;
+// target1 = {
+//   name: 'coma',
+//   friends: [1, 2, [1,2,3], { name: 'll' }],
+// }
 
-target1._test_ = target1
-console.time('target');
-const result = deepClone(target);
-console.timeEnd('target')
-const result1 = deepClone(target1);
-console.log(result1._test_ === result1);
+// target1._test_ = target1
+// console.time('target');
+// const result = deepClone(target);
+// console.timeEnd('target')
+// const result1 = deepClone(target1);
+// console.log(result1._test_ === result1);
 
-console.log(result1.friends[2] === target1.friends[2])
+// console.log(result1.friends[2] === target1.friends[2])
 
-// console.log(result, target.say === result.say);
-// console.log(result1, result1[0].info === target.info);
+// // console.log(result, target.say === result.say);
+// // console.log(result1, result1[0].info === target.info);
 
-console.time('target1')
-for (let i = 0; i < 10000; i ++) {
-  deepClone(target1)
-}
-console.timeEnd('target1')
+// console.time('target1')
+// for (let i = 0; i < 10000; i ++) {
+//   deepClone(target1)
+// }
+// console.timeEnd('target1')
 
-const target2 = [null, 2, 3, { name: 'll' }, null]
-target2[0] = target2
+// const target2 = [null, 2, 3, { name: 'll' }, null]
+// target2[0] = target2
 
-const result2 = deepClone(target2)
+// const result2 = deepClone(target2)
 
-console.log(result2, result2 === result2[0], target2[3] === result2[3])
+// console.log(result2, result2 === result2[0], target2[3] === result2[3])
 
-console.log(deepClone(null))
+console.log(deepClone({ [Symbol('test')]: 'coma' }))
