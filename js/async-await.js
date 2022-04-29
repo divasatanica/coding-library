@@ -7,14 +7,14 @@ function asyncWrapper(gen) {
         }
 
         if (value instanceof Promise) {
-            value.then(val => {
-                handle(iterator.next(val));
+            return value.then(val => {
+                return Promise.resolve(handle(iterator.next(val)));
             }, e => iterator.throw(e));
         }
     }
 
     try {
-        handle(iterator.next());
+        return handle(iterator.next());
     } catch (e) {
         throw e;
     }
@@ -30,6 +30,7 @@ function* gen() {
         const c = yield Promise.resolve(b + 100);
         console.log(c);
         console.log(a, b, c); // 输出 1，11，111
+        return `coma-${c}`
     } catch (e) {
         console.log("出错了：", e);
     }
@@ -54,5 +55,7 @@ function sleep(time) {
     return new Promise(resolve => setTimeout(resolve, time));
 }
 
-// asyncWrapper(gen);
-gen1();
+const result = asyncWrapper(gen).then(res => console.log('result:', res));
+
+console.log(result)
+// gen1();

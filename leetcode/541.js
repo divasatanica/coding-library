@@ -44,7 +44,7 @@ var reverseStr2 = function(s, k) {
 
 function test(s, k) {
     // return reverseStr(s, k) === reverseStr2(s, k);
-    reverseStr2(s, k);
+    return reverseStr2(s, k);
 
 }
 

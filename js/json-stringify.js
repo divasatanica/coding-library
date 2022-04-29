@@ -69,26 +69,24 @@ function getType (value) {
 }
 
 const templateObj = {
-  // id: 1,
-  a: [1,2],
-  // info: {
-  //   name: 'coma',
-  //   age: 25,
-  //   single: false,
-  //   address: {
-  //     province: '',
-  //     city: '',
-  //     street: {
-  //       house: 'xx',
-  //       room: 123
-  //     }
-  //   }
-  // }
+  id: 1,
+  info: {
+    name: 'coma',
+    age: 25,
+    single: false,
+    address: {
+      province: '',
+      city: '',
+      street: {
+        house: 'xx',
+        room: 123
+      }
+    }
+  }
 };
 
 const realObj = {
   id: 2,
-  a: [1,2],
   info: {
     name: 'll',
     age: 20,
@@ -133,13 +131,13 @@ console.log('RESULT:', stringifier(realObj));
 console.assert(stringifier(templateObj) === JSON.stringify(templateObj));
 
 console.time('Native')
-for (let i = 0; i < 1e5; i ++) {
+for (let i = 0; i < 1e6; i ++) {
   JSON.stringify(realObj);
 }
 console.timeEnd('Native');
 
 console.time('Stringify')
-for (let i = 0; i < 1e5; i ++) {
+for (let i = 0; i < 1e6; i ++) {
   stringifier(realObj);
 }
 console.timeEnd('Stringify');

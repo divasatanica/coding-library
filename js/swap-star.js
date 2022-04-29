@@ -27,7 +27,9 @@ function swapStar(str) {
       swap(arr, i, j);
     } else if (isWord(arr[j]) && isWord(arr[i])) {
       // i: a-z j: a-z
-      i ++;
+      while (isWord(arr[j]) && isWord(arr[i])) {
+        i ++;
+      }
     } else {
       // j: *
       j ++;
@@ -48,6 +50,6 @@ function swap(arr, i, j) {
   arr[j] = tmp;
 }
 
-console.log(swapStar('a**bc*ef*'))
-console.log(swapStar('a**bcf*hasf*ah*ashk**ef*'))
+console.log(swapStar('a*bef*'))
+// console.log(swapStar('a**bcf*hasf*ah*ashk**ef*'))
 // console.log(swapStar('a**'))
