@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "es2015",
+    "allowSyntheticDefaultImports": true, // 允许你使用 ES2015 默认的 imports 风格
+    "sourceMap": true, // 使 TypeScript 生成 sourcemaps
+    "strictNullChecks": true,
+    "moduleResolution": "node",
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "baseUrl": ".",
+    "outDir": "./dist",
+    "declaration": true,
+    "declarationDir": "./dist/types",
+    "rootDir": "src"
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/*.ts"
+  ],
+  "exclude": [
+    "node_modules", // 这个目录下的代码不会被 typescript 处理
+    "dist",
+    "src/__tests__/*.ts"
+  ],
+  "lib": [
+    "esnext",
+    "dom",
+    "dom.iterable",
+    "scripthost"
+  ]
+}
