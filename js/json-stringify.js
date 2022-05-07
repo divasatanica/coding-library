@@ -155,6 +155,7 @@ function testObj() {
     stringifier(realObj);
   }
   console.timeEnd('Stringify object');
+  console.log('\n');
 }
 
 function testArray() {
@@ -176,6 +177,7 @@ function testArray() {
   const stringifier = getStringify(schema);
 
   console.log('RESULT:', stringifier(realObj));
+  console.assert(stringifier(realObj) === JSON.stringify(realObj));
 
   console.time('Native JSON.stringify array')
   for (let i = 0; i < 1e6; i ++) {
@@ -188,6 +190,7 @@ function testArray() {
     stringifier(realObj);
   }
   console.timeEnd('Stringify array');
+  console.log('\n');
 }
 
 testObj();
