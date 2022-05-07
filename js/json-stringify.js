@@ -47,13 +47,17 @@ function getStringify(schema) {
   return new Function('object', code);
 }
 
-function getSchema(obj, pathPrefix = '') {
+function getSchema(obj, pathPrefix = '', circleCheckSet = new WeakSet()) {
+  if (circleCheckSet.has(obj)) {
+    throw new Error('Cannot convert circular JSON');
+  }
+  circleCheckSet.add(obj);
   const type = getType(obj);
   if (type === 'array') {
     const res = Array.from({ length: obj.length });
 
     obj.forEach((item, index) => {
-      res[index] = getSchema(item, `${pathPrefix}${index}.`);
+      res[index] = getSchema(item, `${pathPrefix}${index}.`, circleCheckSet);
     });
 
     return res;
@@ -74,7 +78,7 @@ function getSchema(obj, pathPrefix = '') {
       const type = getType(value);
 
       if (type === 'object' || type === 'array') {
-        res[key] = getSchema(value, `${pathPrefix}${key}.`);
+        res[key] = getSchema(value, `${pathPrefix}${key}.`, circleCheckSet);
       } else {
         res[key] = `##${pathPrefix}${key}##${type}##`;
       }
