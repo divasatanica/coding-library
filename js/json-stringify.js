@@ -1,23 +1,38 @@
-function stringify(schema) {
-  const schemaStr = JSON.stringify(schema);
-  const Split = schemaStr.split(/("##[\w|_|0-9|\.]{1,}##\w{1,}##")/g);
-  let code = `return `
-  const template = Split.forEach((item, index)=> {
+let gDebug = true;
 
+function getStringify(schema) {
+  gDebug && console.log('SCHEMA:', schema, '\n');
+  const schemaStr = JSON.stringify(schema);
+  const Split = schemaStr.split(/("##[\[|\]|\w|_|0-9|\.]{1,}##\w{1,}##")/g);
+  let code = `return `
+  Split.forEach((item, index)=> {
     if (index % 2) {
+      gDebug && console.log('ITEM:', item, '\n');
       const [pathStr, type] = item.slice(3, -3).split('##');
-      const path = pathStr.split('.');
+      const path = pathStr.split('.').filter(Boolean);
       const valueAccessCode = path.reduce((acc, curr, index) => {
-        const res = acc + ` || {}).${curr}${index === path.length - 1 ? '' : ''}`;
+        const res = acc + ` || {})["${curr}"]`;
         return res;
       }, '('.repeat(path.length) + 'object');
 
-      if (type === 'string') {
-        code += `'"' + ${valueAccessCode} + '"'`;
-      } else {
-        code += valueAccessCode;
+      switch (type) {
+        case 'string': {
+          code += `'"' + ${valueAccessCode} + '"'`;
+          break;
+        }
+        case 'null': {
+          code += 'null';
+          break;
+        }
+        case 'object': {
+          code += valueAccessCode;
+          break;
+        }
+        default: {
+          code += valueAccessCode;
+          break;
+        }
       }
-
       code += ' + ';
     } else {
       if (index === Split.length - 1) {
@@ -28,27 +43,46 @@ function stringify(schema) {
     }
   });
 
-  console.log(code);
+  gDebug && console.log('CODE:', code, '\n');
   return new Function('object', code);
 }
 
 function getSchema(obj, pathPrefix = '') {
-  const res = Object.create(null);
-  // Omit the symbol key using Object.keys() method.
-  const keys = Object.keys(obj);
+  const type = getType(obj);
+  if (type === 'array') {
+    const res = Array.from({ length: obj.length });
 
-  keys.forEach(key => {
-    const value = obj[key];
-    const type = getType(value);
+    obj.forEach((item, index) => {
+      res[index] = getSchema(item, `${pathPrefix}${index}.`);
+    });
 
-    if (type === 'object') {
-      res[key] = getSchema(value, `${pathPrefix}${key}.`);
-    } else {
-      res[key] = `##${pathPrefix}${key}##${type}##`;
+    return res;
+  } else if (type !== 'object') {
+    if (type === 'function') {
+      return `##${pathPrefix}##null##`;
     }
-  });
 
-  return res;
+    return `##${pathPrefix}##${type}##`;
+    
+  } else {
+    const res = Object.create(null);
+    // Omit the symbol key using Object.keys() method.
+    const keys = Object.keys(obj);
+
+    keys.forEach(key => {
+      const value = obj[key];
+      const type = getType(value);
+
+      if (type === 'object' || type === 'array') {
+        res[key] = getSchema(value, `${pathPrefix}${key}.`);
+      } else {
+        res[key] = `##${pathPrefix}${key}##${type}##`;
+      }
+    });
+
+    return res;
+  }
+  
 }
 
 function getType (value) {
@@ -68,76 +102,93 @@ function getType (value) {
   return typeof value;
 }
 
-const templateObj = {
-  id: 1,
-  info: {
-    name: 'coma',
-    age: 25,
-    single: false,
-    address: {
-      province: '',
-      city: '',
-      street: {
-        house: 'xx',
-        room: 123
+function testObj() {
+  const templateObj = {
+    id: 1,
+    friends: [0, 0],
+    info: {
+      name: 'coma',
+      age: 25,
+      single: false,
+      address: {
+        province: '',
+        city: '',
+        street: {
+          house: 'xx',
+          room: 123
+        }
+      }
+    }
+  };
+  
+  const realObj = {
+    id: 2,
+    friends: [3,4],
+    info: {
+      name: 'll',
+      age: 20,
+      single: false,
+      address: {
+        province: 'asd',
+        city: 'dsa',
+        street: {
+          house: 'xx',
+          room: 123
+        }
       }
     }
   }
-};
+  const schema = getSchema(templateObj);
+  const stringifier = getStringify(schema);
+  console.log('RESULT:', stringifier(realObj));
 
-const realObj = {
-  id: 2,
-  info: {
-    name: 'll',
-    age: 20,
-    single: false,
-    address: {
-      province: 'asd',
-      city: 'dsa',
-      street: {
-        house: 'xx',
-        room: 123
-      }
-    }
+  console.assert(stringifier(templateObj) === JSON.stringify(templateObj));
+
+  console.time('Native JSON.stringify object')
+  for (let i = 0; i < 1e6; i ++) {
+    JSON.stringify(realObj);
   }
+  console.timeEnd('Native JSON.stringify object');
+
+  console.time('Stringify object')
+  for (let i = 0; i < 1e6; i ++) {
+    stringifier(realObj);
+  }
+  console.timeEnd('Stringify object');
 }
-// const templateObj = {
-//   id: 1,
-//   info: {
-//     age: 23,
-//     address: {
-//       province: ''
-//     }
-//   }
-// }
 
-// const realObj = {
-//   id: 2,
-//   info: {
-//     age: 20,
-//     address: {
-//       province: 'x'
-//     }
-//   }
-// }
-const schema = getSchema(templateObj);
-const stringifier = stringify(schema);
+function testArray() {
+  const templateObj = [
+    { name: 'c' },
+    1,
+    'name',
+    function foo() {}
+  ];
 
-// console.log(JSON.stringify(schema));
-// console.log(stringifier(realObj), JSON.stringify(realObj));
+  const realObj = [
+    { name: 'll'},
+    2,
+    'cc',
+    function bar() {}
+  ]
 
-console.log('RESULT:', stringifier(realObj));
+  const schema = getSchema(templateObj);
+  const stringifier = getStringify(schema);
 
-console.assert(stringifier(templateObj) === JSON.stringify(templateObj));
+  console.log('RESULT:', stringifier(realObj));
 
-console.time('Native')
-for (let i = 0; i < 1e6; i ++) {
-  JSON.stringify(realObj);
+  console.time('Native JSON.stringify array')
+  for (let i = 0; i < 1e6; i ++) {
+    JSON.stringify(realObj);
+  }
+  console.timeEnd('Native JSON.stringify array');
+
+  console.time('Stringify array')
+  for (let i = 0; i < 1e6; i ++) {
+    stringifier(realObj);
+  }
+  console.timeEnd('Stringify array');
 }
-console.timeEnd('Native');
 
-console.time('Stringify')
-for (let i = 0; i < 1e6; i ++) {
-  stringifier(realObj);
-}
-console.timeEnd('Stringify');
+testObj();
+testArray();
