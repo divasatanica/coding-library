@@ -38,7 +38,7 @@ function solution(candidates, target) {
 
   return JSON.stringify(_solution(candidates, target));
 
-  function _solution(candidates, target, start, end) {
+  function _solution(candidates, target, start = 0, end = candidates.length - 1) {
     if (candidates.length === 0 || target <= 0) {
       return [];
     }
@@ -46,7 +46,7 @@ function solution(candidates, target) {
     // 找到 target 的索引
     let targetIndex = -1;
   
-    for (let i = 0; i < _candidates.length; i ++) {
+    for (let i = 0; i <= end; i ++) {
       // 找到 target 或最接近且小于 target 的数的索引
       if (_candidates[i] <= target) {
         targetIndex = i;
@@ -105,3 +105,4 @@ function solution(candidates, target) {
 console.log('1', solution([2,3,6,7], 7));
 console.log('2', solution([2,3,5], 8));
 console.log('3', solution([2], 1));
+console.log('4', solution([2,3,5], 11));
