@@ -92,7 +92,7 @@ function convertNumberWithinTenThousand(number, trimZero = false) {
     }
   }
 
-  return result.join("");
+  return result.join("").replace(/(零)零{1,}/, "$1");
 }
 
-convertToUpperCase(30345);
+convertToUpperCase(50033005);
