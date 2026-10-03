@@ -22,8 +22,6 @@ var minSubArrayLen = function (target, nums) {
         sum = sum - nums[left];
         left += 1;
       }
-      sum = sum + nums[right];
-      right += 1;
     }
   }
 
@@ -85,10 +83,6 @@ const nums = JSON.parse(require("fs").readFileSync("./209.json", "utf-8"));
 const target = 396893380;
 
 console.log("nums", nums.length);
-
-console.time("minSubArrayLen1");
-console.log(minSubArrayLen1(target, nums));
-console.timeEnd("minSubArrayLen1");
 
 console.time("minSubArrayLen");
 console.log(minSubArrayLen(target, nums));
